@@ -1,78 +1,83 @@
 
-def function1(matrix,direction,steps) -> int:
-    
-    for i in range(0,len(matrix)):
-        for j in range(0,len(matrix[0])):
-            if "H" in matrix[i][j]:
-                head_x = i
-                head_y = j
-            if "T" in matrix[i][j]:
-                tail_x = i
-                tail_y = j
-    cnt = 0
-    for z in range(0,steps):
-        if direction == "U":
-            matrix[head_x][head_y] = matrix[head_x][head_y].replace("H","")
-            matrix[head_x - 1][head_y] += "H"
-            if abs(head_x - tail_x) > 0 or abs(head_y - tail_y) > 0:
-                matrix[tail_x][tail_y] = matrix[tail_x][tail_y].replace("T","")
-                tail_x = head_x
-                tail_y = head_y
-                matrix[tail_x][tail_y] += "T"
-                if "#" not in matrix[tail_x][tail_y]:
-                    matrix[tail_x][tail_y] += "#"
-                    cnt += 1
-            head_x -= 1
-        elif direction == "D":
-            matrix[head_x][head_y] = matrix[head_x][head_y].replace("H","")
-            matrix[head_x + 1][head_y] += "H"
-            if abs(head_x - tail_x) > 0 or abs(head_y - tail_y) > 0:
-                matrix[tail_x][tail_y] = matrix[tail_x][tail_y].replace("T","")
-                tail_x = head_x
-                tail_y = head_y
-                matrix[tail_x][tail_y] += "T"
-                if "#" not in matrix[tail_x][tail_y]:
-                    matrix[tail_x][tail_y] += "#"
-                    cnt += 1
-            head_x += 1
-        elif direction == "L":
-            matrix[head_x][head_y] = matrix[head_x][head_y].replace("H","")
-            matrix[head_x][head_y - 1] += "H"
-            if abs(head_x - tail_x) > 0 or abs(head_y - tail_y) > 0:
-                matrix[tail_x][tail_y] = matrix[tail_x][tail_y].replace("T","")
-                tail_x = head_x
-                tail_y = head_y
-                matrix[tail_x][tail_y] += "T"
-                if "#" not in matrix[tail_x][tail_y]:
-                    matrix[tail_x][tail_y] += "#"
-                    cnt += 1
-            head_y -= 1
-        else:
-            matrix[head_x][head_y] = matrix[head_x][head_y].replace("H","")
-            matrix[head_x][head_y + 1] += "H"
-            if abs(head_x - tail_x) > 0 or abs(head_y - tail_y) > 0:
-                matrix[tail_x][tail_y] = matrix[tail_x][tail_y].replace("T","")
-                tail_x = head_x
-                tail_y = head_y
-                matrix[tail_x][tail_y] += "T"
-                if "#" not in matrix[tail_x][tail_y]:
-                    matrix[tail_x][tail_y] += "#"
-                    cnt += 1
-            head_y += 1
-        print(matrix)
-    return cnt
+def function1(fileToRead):
+    head = [0, 0]
+    tail = [0, 0]
+    listPositions = [[0, 0]]
+    for line in fileToRead.readlines():
+        line = line.replace("\n", "").split(" ")
+        direction, steps = line[0], int(line[1])
+        for i in range(0, steps):
+            if direction == "U":
+                head[0] -= 1
+                if abs(head[0] - tail[0]) > 1 or abs(head[1] - tail[1]) > 1:
+                    tail = [head[0] + 1, head[1]]
+            elif direction == "D":
+                head[0] += 1
+                if abs(head[0] - tail[0]) > 1 or abs(head[1] - tail[1]) > 1:
+                    tail = [head[0] - 1, head[1]]
+            elif direction == "L":
+                head[1] -= 1
+                if abs(head[0] - tail[0]) > 1 or abs(head[1] - tail[1]) > 1:
+                    tail = [head[0], head[1] + 1]
+            else:
+                head[1] += 1
+                if abs(head[0] - tail[0]) > 1 or abs(head[1] - tail[1]) > 1:
+                    tail = [head[0], head[1] - 1]
+            if tail not in listPositions:
+                listPositions.append(tail)
+    return len(listPositions)
+
+
+def function2(fileToRead):
+    head = [0, 0]
+    positions = {
+        "1": [0, 0],
+        "2": [0, 0],
+        "3": [0, 0],
+        "4": [0, 0],
+        "5": [0, 0],
+        "6": [0, 0],
+        "7": [0, 0],
+        "8": [0, 0],
+        "9": [0, 0],
+    }
+    listPositions = set(['[0, 0]'])
+
+    for line in fileToRead.readlines():
+        line = line.replace("\n", "").split(" ")
+        direction, steps = line[0], int(line[1])
+        for i in range(0, steps):
+            if direction == "U":
+                head[0] -= 1
+            elif direction == "D":
+                head[0] += 1
+            elif direction == "L":
+                head[1] -= 1
+            else:
+                head[1] += 1
+
+            prev = head
+            for k in positions.keys():
+                x = positions[k][0]
+                y = positions[k][1]
+                if (x - prev[0]) * (x - prev[0]) + (y - prev[1]) * (y - prev[1]) > 2:
+                    if abs(prev[0] - x) <= 1:
+                        positions[k][0] = prev[0] 
+                    else:
+                        positions[k][0] = int((prev[0] + x) / 2)
+                    if abs(prev[1] - y) <= 1:
+                        positions[k][1] = prev[1]
+                    else:
+                        positions[k][1] = int((prev[1] + y) / 2)
+                prev = positions[k]    
+            listPositions.add(str(positions["9"]))
+
+    return len(listPositions)
+
 
 with open("input.txt") as fileToRead:
-    matrix = [
-        ["","","","","",""],
-        ["","","","","",""],
-        ["","","","","",""],
-        ["","","","","",""],
-        ["","","","","",""],
-        ["sTH","","","","",""],
-    ]
-    cnt = 0
-    for line in fileToRead.readlines():
-        line = line.replace("\n","").split(" ")
-        cnt += function1(matrix,line[0],int(line[1]))
-    print(cnt)
+    print("First Part:   ", function1(fileToRead))
+with open("input.txt") as fileToRead:
+    print("Second Part:   ", function2(fileToRead))
+
+
